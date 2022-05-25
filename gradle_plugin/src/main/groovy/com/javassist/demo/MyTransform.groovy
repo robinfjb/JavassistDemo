@@ -7,9 +7,12 @@ import com.android.build.api.transform.TransformException
 import com.android.build.api.transform.TransformInvocation
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.utils.FileUtils
+import javassist.CannotCompileException
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import javassist.expr.ExprEditor
+import javassist.expr.MethodCall
 import org.gradle.api.Project
 
 class MyTransform extends Transform {
@@ -20,6 +23,7 @@ class MyTransform extends Transform {
         this.project = project
     }
 
+    //任务名
     @Override
     public String getName() {
         return "MyTransform";
@@ -37,6 +41,7 @@ class MyTransform extends Transform {
         return TransformManager.SCOPE_FULL_PROJECT;
     }
 
+    //是否增量编译
     @Override
     public boolean isIncremental() {
         return false;
@@ -55,6 +60,7 @@ class MyTransform extends Transform {
                 pool.insertClassPath(preClassNamePath)
 
                 findTarget(dirInput.file,preClassNamePath)
+
                 //2.获取输出的文件夹
                 def dest = transformInvocation.outputProvider.getContentLocation(
                         dirInput.name,
@@ -105,7 +111,7 @@ class MyTransform extends Transform {
         }
 
     }
-    private void modify(def filePath, String fileName) {
+    private void modify(String filePath, String fileNamePath) {
         //过滤没用的文件
         if (filePath.contains('R$') || filePath.contains('R.class')
                 || filePath.contains("BuildConfig.class")) {
@@ -114,7 +120,7 @@ class MyTransform extends Transform {
         println "开始修改Class"+filePath
 
         //因为Javassist需要class包名也就是》》com.example.javassist.MainActivity
-        def className =  filePath.replace(fileName, "")
+        def className =  filePath.replace(fileNamePath, "")
                 .replace("\\", ".")  .replace("/", ".")
         def name = className.replace(".class", "").substring(1)
         println "包名为:" + name
@@ -124,7 +130,7 @@ class MyTransform extends Transform {
         }
         CtClass ctClass=  pool.get(name)
         //添加插入代码
-        addCode(ctClass, fileName)
+        addCode(ctClass, fileNamePath)
     }
 
     private void addCode(CtClass ctClass ,String fileName) {
@@ -133,22 +139,41 @@ class MyTransform extends Transform {
         //获取class所有的方法
         CtMethod[] methods = ctClass.getDeclaredMethods()
         for (method in methods) {
-            println "method "+method.getName()+"参数个数  "+method.getParameterTypes().length
-            method.insertAfter("if(true){}")
-            if (method.getParameterTypes().length == 1) {
-                method.insertBefore("{ System.out.println(\$1);}")
-//                method.insertAt()//插入到对应的行数
+            println "method "+method.getName()+"  参数个数  "+method.getParameterTypes().length
+            if (method.getName().matches("hello")){
+                method.addLocalVariable("start",CtClass.longType);
+                method.insertBefore("{ start = System.currentTimeMillis();}");
+                method.insertAfter("{ " +
+                        " long last =  System.currentTimeMillis() - start;"+
+                        "System.out.println(\" 方法耗时：\"+last);" +
+                        "}");
             }
-            if (method.getParameterTypes().length == 2) {
-                method.insertBefore("{ System.out.println(\$1); System.out.println(\$2);}")
-            }
-            if (method.getParameterTypes().length == 3) {
-                method.insertBefore("{ System.out.println(\$1);System.out.println(\$2);System.out.println(\\\$3);}")
-            }
+
         }
+
+        for (method in methods){
+            println "deleteCodeInMethod start method"+method
+            deleteCodeInMethod(method)
+        }
+
         //把修改的内容写入文件
         ctClass.writeFile(fileName)
         //释放内存
         ctClass.detach()
+    }
+
+    private void deleteCodeInMethod(CtMethod method){
+        method.instrument(new ExprEditor(){
+            @Override
+            void edit(MethodCall m) throws CannotCompileException {
+                println("getClassName: "+ m.getClassName()+
+                        " getMethodName: "+m.getMethodName() +
+                        " line: " + m.getLineNumber());
+                if (m.getClassName().matches(".*Log") && m.getMethodName().matches("e")){
+                    println "modify>>>>>"
+                    m.replace("{\$_;}")
+                }
+            }
+        })
     }
 }
