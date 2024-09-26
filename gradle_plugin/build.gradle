@@ -4,9 +4,10 @@ apply plugin: 'maven'
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    implementation 'org.javassist:javassist:3.20.0-GA'
+    implementation 'org.javassist:javassist:3.25.0-GA'
+    implementation "commons-io:commons-io:2.4"
 //    implementation "com.android.tools.build:gradle:4.1.3"
-    implementation 'com.android.tools.build:gradle:3.1.3'
+    implementation 'com.android.tools.build:gradle:4.1.0'
 
 
 }
@@ -19,9 +20,9 @@ uploadArchives{
 //    打包成一个jar    引用jar  生成这个三个信息
     repositories {
         mavenDeployer{
-            pom.groupId = 'com.javassist.demo'
-            pom.artifactId = 'modify'
-            pom.version = '1.0.1'
+            pom.groupId = 'com.annto.csp.plugin'
+            pom.artifactId = 'agentWeb'
+            pom.version = '1.0.0'
             repository(url: uri('../repo'))
         }
 
