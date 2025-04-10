@@ -153,6 +153,23 @@ class JavassistTransform extends Transform {
             if (outputJarFile.exists()) outputJarFile.delete()
             def jarOutputStream = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(outputJarFile)))
             
+            // 如果两个类都已经处理过了，直接复制整个jar文件
+            if (handledAgentWebConfig && handledCustomCameraView) {
+                while (entries.hasMoreElements()) {
+                    def jarInputEntry = entries.nextElement()
+                    def outputJarEntry = new JarEntry(jarInputEntry.name)
+                    jarOutputStream.putNextEntry(outputJarEntry)
+                    def inputStream = inputJarFile.getInputStream(jarInputEntry)
+                    jarOutputStream.write(IOUtils.toByteArray(inputStream))
+                    inputStream.close()
+                }
+                inputJarFile.close()
+                jarOutputStream.closeEntry()
+                jarOutputStream.flush()
+                jarOutputStream.close()
+                return outputJarFile
+            }
+            
             while (entries.hasMoreElements()) {
                 def jarInputEntry = entries.nextElement()
                 def jarInputEntryName = jarInputEntry.name
@@ -172,6 +189,19 @@ class JavassistTransform extends Transform {
                 jarOutputStream.write(byteCode)
                 inputStream.close()
                 jarOutputStream.flush()
+                
+                // 如果两个类都已经处理过了，直接复制剩余的条目
+                if (handledAgentWebConfig && handledCustomCameraView) {
+                    while (entries.hasMoreElements()) {
+                        jarInputEntry = entries.nextElement()
+                        outputJarEntry = new JarEntry(jarInputEntry.name)
+                        jarOutputStream.putNextEntry(outputJarEntry)
+                        inputStream = inputJarFile.getInputStream(jarInputEntry)
+                        jarOutputStream.write(IOUtils.toByteArray(inputStream))
+                        inputStream.close()
+                    }
+                    break
+                }
             }
             
             inputJarFile.close()
@@ -303,9 +333,11 @@ class JavassistTransform extends Transform {
         ctClass.detach()
     }*/
 
+    def handledAgentWebConfig = false
     private void deleteCodeInMethod (CtMethod method){
         println "开始重写:"+method.name
         method.setBody("{DEBUG = true;}")
+        handledAgentWebConfig = true
         /*method.instrument(new ExprEditor(){
             @Override
             void edit(MethodCall m) throws CannotCompileException {
@@ -320,10 +352,12 @@ class JavassistTransform extends Transform {
         })*/
     }
 
+    def handledCustomCameraView = false
     private void ModifyCustomCameraViewCodeInMethod(CtMethod method){
         println "开始重写:"+method.name
         CtClass etype = ClassPool.getDefault().get("java.lang.Exception")
         method.addCatch("{ System.out.println(\$e); return;}", etype)
+        handledCustomCameraView = true
          /*   // 先尝试将PreviewView类添加到ClassPool中
             pool.importPackage("androidx.camera.view")
             

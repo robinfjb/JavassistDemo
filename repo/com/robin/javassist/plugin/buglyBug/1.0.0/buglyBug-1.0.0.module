@@ -27,11 +27,11 @@
         {
           "name": "buglyBug-1.0.0.jar",
           "url": "buglyBug-1.0.0.jar",
-          "size": 15493,
-          "sha512": "97f75319240c2cbcdfa4ae7ab235c3edcff3c901a2755b82c3502bc03b61a8160223c8606b3f1724eda95fb5fe9df0020124407223fcb0db978986b454535fae",
-          "sha256": "b6c486ef0ef093de11c185b27a753779ffbbca0d55b89a871fcb3f96675d3725",
-          "sha1": "f5c62154e94e3d3c91adbf60f74f7593207d44b2",
-          "md5": "17985ed186991c66cf72d84868a526da"
+          "size": 16067,
+          "sha512": "7a6d43adcec12cba8fda9cd0c3666ba0f3f701faf3642a5c4d1d5813177cb6a364fc308f61249fc2d07fba55ae154acc94e4b49b8f738adcf74ab22f6080ab38",
+          "sha256": "ea43b0c542bb1e3fc772b405ae85bedaef0666a5ed9e7f249c65cf9514f7398f",
+          "sha1": "7a734b0806a550ae04fab2945debffade0bc3d02",
+          "md5": "3050070ab0c863dde614700d14d06cd9"
         }
       ]
     },
@@ -71,11 +71,11 @@
         {
           "name": "buglyBug-1.0.0.jar",
           "url": "buglyBug-1.0.0.jar",
-          "size": 15493,
-          "sha512": "97f75319240c2cbcdfa4ae7ab235c3edcff3c901a2755b82c3502bc03b61a8160223c8606b3f1724eda95fb5fe9df0020124407223fcb0db978986b454535fae",
-          "sha256": "b6c486ef0ef093de11c185b27a753779ffbbca0d55b89a871fcb3f96675d3725",
-          "sha1": "f5c62154e94e3d3c91adbf60f74f7593207d44b2",
-          "md5": "17985ed186991c66cf72d84868a526da"
+          "size": 16067,
+          "sha512": "7a6d43adcec12cba8fda9cd0c3666ba0f3f701faf3642a5c4d1d5813177cb6a364fc308f61249fc2d07fba55ae154acc94e4b49b8f738adcf74ab22f6080ab38",
+          "sha256": "ea43b0c542bb1e3fc772b405ae85bedaef0666a5ed9e7f249c65cf9514f7398f",
+          "sha1": "7a734b0806a550ae04fab2945debffade0bc3d02",
+          "md5": "3050070ab0c863dde614700d14d06cd9"
         }
       ]
     }
